@@ -464,10 +464,10 @@ class font_patcher:
             0xe0b3: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
 
             # Rounded arcs
-            0xe0b4: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.01}},
-            0xe0b5: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.01}},
-            0xe0b6: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.01}},
-            0xe0b7: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.01}},
+            0xe0b4: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
+            0xe0b5: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
+            0xe0b6: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
+            0xe0b7: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
 
             # Bottom Triangles
             0xe0b8: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
