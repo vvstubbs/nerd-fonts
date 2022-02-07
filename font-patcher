@@ -843,9 +843,10 @@ class font_patcher:
             # even the ones that are empty and didn't go through the scaling operations.
             self.set_glyph_width_mono(self.sourceFont[currentSourceFontGlyph])
 
-            # Ensure after horizontal adjustments and centering that the glyph
-            # does not overlap the bearings (edges)
-            self.remove_glyph_neg_bearings(self.sourceFont[currentSourceFontGlyph])
+            if not overlap:
+                # Ensure after horizontal adjustments and centering that the glyph
+                # does not overlap the bearings (edges)
+                self.remove_glyph_neg_bearings(self.sourceFont[currentSourceFontGlyph])
 
             # Check if the inserted glyph is scaled correctly for monospace
             if self.args.single:
