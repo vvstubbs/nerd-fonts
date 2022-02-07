@@ -470,38 +470,39 @@ class font_patcher:
     def setup_patch_set(self):
         """ Creates list of dicts to with instructions on copying glyphs from each symbol font into self.sourceFont """
         # Supported params: overlap | careful
+        # Overlap value is used horizontally but vertically limited to 0.01
         # Powerline dividers
         SYM_ATTR_POWERLINE = {
             'default': {'align': 'c', 'valign': 'c', 'stretch': 'pa', 'params': {}},
 
             # Arrow tips
-            0xe0b0: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0b0: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0b1: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
-            0xe0b2: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0b2: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0b3: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
 
             # Rounded arcs
-            0xe0b4: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0b4: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0b5: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.01}},
-            0xe0b6: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0b6: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0b7: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.01}},
 
             # Bottom Triangles
-            0xe0b8: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0b8: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0b9: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
-            0xe0ba: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0ba: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0bb: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
 
             # Top Triangles
-            0xe0bc: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0bc: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0bd: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
-            0xe0be: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0be: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0bf: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
 
             # Flames
-            0xe0c0: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0c0: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0c1: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.01}},
-            0xe0c2: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
+            0xe0c2: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
             0xe0c3: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.01}},
 
             # Small squares
@@ -525,8 +526,8 @@ class font_patcher:
             0xe0d1: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.02}},
 
             # Top and bottom trapezoid
-            0xe0d2: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}},
-            0xe0d4: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.03}}
+            0xe0d2: {'align': 'l', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}},
+            0xe0d4: {'align': 'r', 'valign': 'c', 'stretch': 'xy', 'params': {'overlap': 0.04}}
         }
 
         SYM_ATTR_DEFAULT = {
@@ -803,7 +804,7 @@ class font_patcher:
             if scale_ratio_x != 1 or scale_ratio_y != 1:
                 if overlap:
                     scale_ratio_x *= 1 + overlap
-                    scale_ratio_y *= 1 + overlap
+                    scale_ratio_y *= 1 + max(0.01, overlap)
                 self.sourceFont[currentSourceFontGlyph].transform(psMat.scale(scale_ratio_x, scale_ratio_y))
 
             # Use the dimensions from the newly pasted and stretched glyph
