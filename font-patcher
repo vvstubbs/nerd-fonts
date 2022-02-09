@@ -47,34 +47,19 @@ class font_patcher:
         self.patch_set = None  # class 'list'
         self.font_dim = None  # class 'dict'
         self.onlybitmaps = 0
-        self.extension = ""
         self.config = configparser.ConfigParser(empty_lines_in_values=False, allow_no_value=True)
-        if not os.path.isfile(self.args.font):
-            sys.exit("{}: Font file does not exist: {}".format(projectName, self.args.font))
-        if not os.access(self.args.font, os.R_OK):
-            sys.exit("{}: Can not open font file for reading: {}".format(projectName, self.args.font))
-        if len(fontforge.fontsInFile(self.args.font)) > 1:
-            sys.exit("{}: Font file contains {} fonts, can only handle single font files".format(projectName,
-                len(fontforge.fontsInFile(self.args.font))))
         try:
             self.sourceFont = fontforge.open(self.args.font, 1) # 1 = ("fstypepermitted",))
         except Exception:
             sys.exit(projectName + ": Can not open font, try to open with fontforge interactively to get more information")
         self.setup_font_names()
         self.remove_ligatures()
-        make_sure_path_exists(self.args.outputdir)
         self.check_position_conflicts()
         self.setup_patch_set()
         self.setup_line_dimensions()
         self.get_sourcefont_dimensions()
         self.sourceFont.encoding = 'UnicodeFull'  # Update the font encoding to ensure that the Unicode glyphs are available
         self.onlybitmaps = self.sourceFont.onlybitmaps  # Fetch this property before adding outlines. NOTE self.onlybitmaps initialized and never used
-        if self.args.extension == "":
-            self.extension = os.path.splitext(self.args.font)[1]
-        else:
-            self.extension = '.' + self.args.extension
-        if re.match("\.ttc$", self.extension, re.IGNORECASE):
-            sys.exit(projectName + ": Can not create True Type Collections")
 
 
     def patch(self):
@@ -123,14 +108,14 @@ class font_patcher:
 
         # the `PfEd-comments` flag is required for Fontforge to save '.comment' and '.fontlog'.
         if self.sourceFont.fullname != None:
-            self.sourceFont.generate(self.args.outputdir + "/" + self.sourceFont.fullname + self.extension, flags=(str('opentype'), str('PfEd-comments')))
+            self.sourceFont.generate(self.args.outputdir + "/" + self.sourceFont.fullname + self.args.extension, flags=(str('opentype'), str('PfEd-comments')))
             print("\nGenerated: {}".format(self.sourceFont.fontname))
         else:
-            self.sourceFont.generate(self.args.outputdir + "/" + self.sourceFont.cidfontname + self.extension, flags=(str('opentype'), str('PfEd-comments')))
+            self.sourceFont.generate(self.args.outputdir + "/" + self.sourceFont.cidfontname + self.args.extension, flags=(str('opentype'), str('PfEd-comments')))
             print("\nGenerated: {}".format(self.sourceFont.fullname))
 
         if self.args.postprocess:
-            subprocess.call([self.args.postprocess, self.args.outputdir + "/" + self.sourceFont.fullname + self.extension])
+            subprocess.call([self.args.postprocess, self.args.outputdir + "/" + self.sourceFont.fullname + self.args.extension])
             print("\nPost Processed: {}".format(self.sourceFont.fullname))
 
 
@@ -1001,6 +986,22 @@ def setup_arguments():
             if found is not True:
                 font_complete = False
         args.complete = font_complete
+
+    make_sure_path_exists(args.outputdir)
+    if not os.path.isfile(args.font):
+        sys.exit("{}: Font file does not exist: {}".format(projectName, args.font))
+    if not os.access(args.font, os.R_OK):
+        sys.exit("{}: Can not open font file for reading: {}".format(projectName, args.font))
+    if len(fontforge.fontsInFile(args.font)) > 1:
+        sys.exit("{}: Font file contains {} fonts, can only handle single font files".format(projectName,
+            len(fontforge.fontsInFile(args.font))))
+
+    if args.extension == "":
+        args.extension = os.path.splitext(args.font)[1]
+    else:
+        args.extension = '.' + args.extension
+    if re.match("\.ttc$", args.extension, re.IGNORECASE):
+        sys.exit(projectName + ": Can not create True Type Collections")
 
     return args
 
