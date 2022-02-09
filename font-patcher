@@ -977,43 +977,64 @@ def setup_arguments():
         sys.exit("{}: Font file does not exist: {}".format(projectName, args.font))
     if not os.access(args.font, os.R_OK):
         sys.exit("{}: Can not open font file for reading: {}".format(projectName, args.font))
-    if len(fontforge.fontsInFile(args.font)) > 1:
-        sys.exit("{}: Font file contains {} fonts, can only handle single font files".format(projectName,
-            len(fontforge.fontsInFile(args.font))))
+    is_ttc = len(fontforge.fontsInFile(args.font)) > 1
 
     if args.extension == "":
         args.extension = os.path.splitext(args.font)[1]
     else:
         args.extension = '.' + args.extension
     if re.match("\.ttc$", args.extension, re.IGNORECASE):
-        sys.exit(projectName + ": Can not create True Type Collections")
+        if not is_ttc:
+            sys.exit(projectName + ": Can not create True Type Collections from single font files")
+    else:
+        if is_ttc:
+            sys.exit(projectName + ": Can not create single font files from True Type Collections")
 
     return args
 
 
 def main():
-    print("{} Patcher v{} executing\n".format(projectName, version))
+    print("{} Patcher v{} executing".format(projectName, version))
     check_fontforge_min_version()
     args = setup_arguments()
     patcher = font_patcher(args)
 
-    try:
-        sourceFont = fontforge.open(args.font, 1) # 1 = ("fstypepermitted",))
-    except Exception:
-        sys.exit(projectName + ": Can not open font, try to open with fontforge interactively to get more information")
+    sourceFonts = []
+    for subfont in fontforge.fontsInFile(args.font):
+        print("\n{}: Processing {}".format(projectName, subfont))
+        try:
+            sourceFonts.append(fontforge.open("{}({})".format(args.font, subfont), 1)) # 1 = ("fstypepermitted",))
+        except Exception:
+            sys.exit("{}: Can not open font '{}', try to open with fontforge interactively to get more information".format(
+                projectName, subfont))
 
-    patcher.patch(sourceFont)
+        patcher.patch(sourceFonts[-1])
 
     print("\nDone with Patch Sets, generating font...")
 
-    # the `PfEd-comments` flag is required for Fontforge to save '.comment' and '.fontlog'.
-    if sourceFont.fullname != None:
-        sourceFont.generate(args.outputdir + "/" + sourceFont.fullname + args.extension, flags=(str('opentype'), str('PfEd-comments')))
-        print("\nGenerated: {}".format(sourceFont.fontname))
+    sourceFont = sourceFonts[0]
+    if len(sourceFonts) > 1:
+        layer = None
+        # use first non-background layer
+        for l in sourceFont.layers:
+            if not sourceFont.layers[l].is_background:
+                layer = l
+                break
+        fontname = os.path.normpath(os.path.join(args.outputdir, sourceFont.familyname + ".ttc"))
+        # the `PfEd-comments` flag is required for Fontforge to save '.comment' and '.fontlog'.
+        sourceFonts[0].generateTtc(fontname, sourceFonts[1:], flags=(str('opentype'), str('PfEd-comments')), layer=layer)
     else:
-        sourceFont.generate(args.outputdir + "/" + sourceFont.cidfontname + args.extension, flags=(str('opentype'), str('PfEd-comments')))
-        print("\nGenerated: {}".format(sourceFont.fullname))
-    sourceFont.close()
+        fontname = sourceFont.fullname
+        if not fontname:
+            fontname = sourceFont.cidfontname
+        fontname = os.path.normpath(os.path.join(args.outputdir, fontname + args.extension))
+        # the `PfEd-comments` flag is required for Fontforge to save '.comment' and '.fontlog'.
+        sourceFont.generate(fontname, flags=(str('opentype'), str('PfEd-comments')))
+
+    print("\nGenerated: '{}'".format(fontname))
+
+    for f in sourceFonts:
+        f.close()
 
     if args.postprocess:
         subprocess.call([args.postprocess, args.outputdir + "/" + sourceFont.fullname + args.extension])
