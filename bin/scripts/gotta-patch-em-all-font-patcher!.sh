@@ -54,7 +54,7 @@ fi
 source_fonts=()
 while IFS= read -d $'\0' -r file ; do
   source_fonts=("${source_fonts[@]}" "$file")
-done < <(find "$source_fonts_dir" -iname "$like_pattern*.[o,t]tf" -type f -print0)
+done < <(find "$source_fonts_dir" -iname "$like_pattern*.[ot]tf" -o -iname "$like_pattern*.sfd" -type f -print0)
 
 # print total number of source fonts found
 echo "$LINE_PREFIX Total source fonts found: ${#source_fonts[*]}"
